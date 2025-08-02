@@ -358,34 +358,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Task Rendering
-    const taskListContainer = document.getElementById('task-list-container');
+    const todayTaskListContainer = document.getElementById('today-task-list');
+    const upcomingTaskListContainer = document.getElementById('upcoming-task-list');
 
-    function renderTasks() {
-        const todayStr = getTodayString();
-        let displayTasks = generateDisplayTasks(todayStr, todayStr); // Get tasks for today
-
-        // Apply filter
-        if (taskFilterState.priority !== 'all') {
-            displayTasks = displayTasks.filter(task => task.priority === taskFilterState.priority);
-        }
-
-        // Sort by user-defined order
-        displayTasks.sort((a, b) => a.sortOrder - b.sortOrder);
-
-        taskListContainer.innerHTML = '';
-
-        if (displayTasks.length === 0) {
-            taskListContainer.innerHTML = '<p class="text-center text-muted">No tasks match the current filter for today.</p>';
+    function renderSingleTaskList(tasks, container, emptyMessage) {
+        container.innerHTML = '';
+        if (tasks.length === 0) {
+            container.innerHTML = `<p class="text-center text-muted">${emptyMessage}</p>`;
             return;
         }
 
-        displayTasks.forEach(taskInstance => {
+        tasks.forEach(taskInstance => {
             const priorityColors = { low: 'success', medium: 'warning', high: 'danger' };
             const priorityColor = priorityColors[taskInstance.priority] || 'secondary';
             const tagsHTML = taskInstance.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('');
 
             const taskCard = document.createElement('div');
-            // A task instance is complete if its completion date matches its due date
             const isInstanceComplete = taskInstance.completedOn.includes(taskInstance.dueDate);
             taskCard.className = `card mb-3 ${isInstanceComplete ? 'task-complete' : ''}`;
             taskCard.dataset.taskId = taskInstance.id;
@@ -432,8 +420,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            taskListContainer.appendChild(taskCard);
+            container.appendChild(taskCard);
         });
+    }
+
+    function renderTasks() {
+        // --- Today's Tasks ---
+        const todayStr = getTodayString();
+        let todayTasks = generateDisplayTasks(todayStr, todayStr);
+        if (taskFilterState.priority !== 'all') {
+            todayTasks = todayTasks.filter(task => task.priority === taskFilterState.priority);
+        }
+        todayTasks.sort((a, b) => a.sortOrder - b.sortOrder);
+        renderSingleTaskList(todayTasks, todayTaskListContainer, 'No tasks due today that match the current filter.');
+
+        // --- Upcoming Tasks (Next 7 Days) ---
+        const tomorrow = new Date(todayStr);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const sevenDaysLater = new Date(todayStr);
+        sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+
+        const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+        const sevenDaysLaterStr = sevenDaysLater.toISOString().slice(0, 10);
+
+        let upcomingTasks = generateDisplayTasks(tomorrowStr, sevenDaysLaterStr);
+        if (taskFilterState.priority !== 'all') {
+            upcomingTasks = upcomingTasks.filter(task => task.priority === taskFilterState.priority);
+        }
+        upcomingTasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.sortOrder - b.sortOrder);
+        renderSingleTaskList(upcomingTasks, upcomingTaskListContainer, 'No upcoming tasks for the next 7 days.');
     }
 
     // --- Drag and Drop Logic ---
@@ -452,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    taskListContainer.addEventListener('dragstart', e => {
+    tasksPage.addEventListener('dragstart', e => {
         if (e.target.classList.contains('card')) {
             draggedTaskId = e.target.dataset.taskId;
             // Timeout to allow the browser to create a drag image before applying the class
@@ -460,27 +475,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    taskListContainer.addEventListener('dragend', e => {
+    tasksPage.addEventListener('dragend', e => {
         if (e.target.classList.contains('card')) {
             e.target.classList.remove('dragging');
             draggedTaskId = null;
         }
     });
 
-    taskListContainer.addEventListener('dragover', e => {
+    tasksPage.addEventListener('dragover', e => {
         e.preventDefault();
-        const afterElement = getDragAfterElement(taskListContainer, e.clientY);
+        const container = e.target.closest('#today-task-list, #upcoming-task-list');
+        if (!container) return;
+
+        const afterElement = getDragAfterElement(container, e.clientY);
         const draggingElement = document.querySelector('.dragging');
         if (draggingElement) {
             if (afterElement == null) {
-                taskListContainer.appendChild(draggingElement);
+                container.appendChild(draggingElement);
             } else {
-                taskListContainer.insertBefore(draggingElement, afterElement);
+                container.insertBefore(draggingElement, afterElement);
             }
         }
     });
 
-    taskListContainer.addEventListener('drop', e => {
+    tasksPage.addEventListener('drop', e => {
         e.preventDefault();
         if (!draggedTaskId) return;
 
@@ -518,8 +536,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // Event delegation for task actions
-    taskListContainer.addEventListener('click', (e) => {
+    // Event delegation for task actions (now on the parent page)
+    const tasksPage = document.getElementById('tasks-page');
+    tasksPage.addEventListener('click', (e) => {
         const card = e.target.closest('.card');
         if (!card) return;
         const taskId = card.dataset.taskId;
@@ -696,14 +715,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         calendarContainer.innerHTML = '';
 
-        const header = document.createElement('div');
-        header.className = 'd-flex justify-content-between align-items-center mb-3';
-        header.innerHTML = `
-            <button id="prev-month-btn" class="btn btn-outline-primary">&lt;</button>
-            <h3 class="text-center">${monthNames[month]} ${year}</h3>
-            <button id="next-month-btn" class="btn btn-outline-primary">&gt;</button>
-        `;
-        calendarContainer.appendChild(header);
+        // Update the navbar controls instead of a header in the page
+        const navMonthYear = document.getElementById('nav-month-year');
+        if (navMonthYear) {
+            navMonthYear.textContent = `${monthNames[month]} ${year}`;
+        }
 
         const grid = document.createElement('div');
         grid.className = 'calendar-grid';

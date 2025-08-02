@@ -33,13 +33,18 @@
                         </button>
                     </div>
                 </div>
-                <div id="task-list-container">
-                    <!-- Task list will be rendered here -->
+                <div id="today-tasks-container">
+                    <h4 class="mb-3">Today</h4>
+                    <div id="today-task-list"></div>
+                </div>
+                <hr class="my-4">
+                <div id="upcoming-tasks-container">
+                    <h4 class="mb-3">Upcoming</h4>
+                    <div id="upcoming-task-list"></div>
                 </div>
             </div>
-            <div id="calendar-page" class="page d-none">
-                <h1>Calendar</h1>
-                <div id="calendar-container">
+            <div id="calendar-page" class="page d-none p-0">
+                <div id="calendar-container" class="h-100">
                     <!-- Calendar will be rendered here by script.js -->
                 </div>
             </div>
@@ -92,10 +97,18 @@
             </div>
         </main>
         <nav id="navbar" class="navbar">
-            <a href="#start" class="nav-link active" data-page="start-page"><i class="bi bi-house-door fs-4"></i> <span class="nav-text">Start</span></a>
-            <a href="#tasks" class="nav-link" data-page="tasks-page"><i class="bi bi-list-check fs-4"></i> <span class="nav-text">Tasks</span></a>
-            <a href="#calendar" class="nav-link" data-page="calendar-page"><i class="bi bi-calendar-event fs-4"></i> <span class="nav-text">Calendar</span></a>
-            <a href="#settings" class="nav-link" data-page="settings-page"><i class="bi bi-gear fs-4"></i> <span class="nav-text">Settings</span></a>
+            <div id="main-nav-links" class="d-flex justify-content-around flex-grow-1">
+                <a href="#start" class="nav-link active" data-page="start-page"><i class="bi bi-house-door fs-4"></i> <span class="nav-text">Start</span></a>
+                <a href="#tasks" class="nav-link" data-page="tasks-page"><i class="bi bi-list-check fs-4"></i> <span class="nav-text">Tasks</span></a>
+                <a href="#calendar" class="nav-link" data-page="calendar-page"><i class="bi bi-calendar-event fs-4"></i> <span class="nav-text">Calendar</span></a>
+                <a href="#settings" class="nav-link" data-page="settings-page"><i class="bi bi-gear fs-4"></i> <span class="nav-text">Settings</span></a>
+            </div>
+
+            <div id="calendar-nav-controls" class="d-none align-items-center mx-auto">
+                <button id="nav-prev-month-btn" class="btn btn-outline-secondary btn-sm">&lt;</button>
+                <span id="nav-month-year" class="mx-2 fw-bold text-center" style="min-width: 120px;"></span>
+                <button id="nav-next-month-btn" class="btn btn-outline-secondary btn-sm">&gt;</button>
+            </div>
         </nav>
     </div>
 
