@@ -19,6 +19,10 @@ body {
     background-color: var(--app-bg-color);
 }
 
+.content-area.no-scroll {
+    overflow-y: hidden;
+}
+
 .navbar {
     grid-area: navbar;
     display: flex;

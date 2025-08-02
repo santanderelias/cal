@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pages = document.querySelectorAll('.page');
 
     function showPage(pageId) {
+        contentArea.classList.remove('no-scroll');
+
         pages.forEach(page => {
             if (page.id === pageId) {
                 page.classList.remove('d-none');
@@ -10,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 page.classList.add('d-none');
             }
         });
+
+        if (pageId === 'calendar-page') {
+            contentArea.classList.add('no-scroll');
+        }
     }
 
     navLinks.forEach(link => {
