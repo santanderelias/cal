@@ -553,7 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tasksPage.addEventListener('click', (e) => {
             const card = e.target.closest('.card');
             if (!card) return;
-        })
         const taskId = card.dataset.taskId;
         const instanceDate = card.dataset.instanceDate;
 
@@ -607,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTasks();
             }
         }
+                })
     };
 
     // Initial render call
