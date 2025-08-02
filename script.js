@@ -810,6 +810,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const grid = document.createElement('div');
         grid.className = 'calendar-grid';
 
+        // Dynamically set the grid rows to prevent empty bottom row
+        const totalCells = firstDayOfMonth.getDay() + lastDayOfMonth.getDate();
+        const numRows = Math.ceil(totalCells / 7);
+        // 1 row for the header, `numRows` for the days
+        grid.style.gridTemplateRows = `auto repeat(${numRows}, 1fr)`;
+
+
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         dayNames.forEach(day => {
             const dayHeader = document.createElement('div');

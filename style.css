@@ -21,6 +21,7 @@ body {
 
 .content-area.no-scroll {
     overflow-y: hidden;
+    padding: 0;
 }
 
 .navbar {
@@ -96,7 +97,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0; /* Make it flush with edges */
+    padding: 0.5rem; /* A little padding so it's not flush with edges */
 }
 
 #calendar-container {
