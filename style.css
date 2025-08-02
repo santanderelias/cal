@@ -77,7 +77,8 @@ body {
     opacity: 0.6;
 }
 
-.task-complete .fw-bold {
+.task-complete .fw-bold,
+.task-complete small {
     text-decoration: line-through;
     color: #6c757d;
 }

@@ -2,6 +2,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
 
+    const contentArea = document.getElementById('content');
+    const navbar = document.getElementById('navbar');
+    const body = document.body;
+    const themeSelect = document.getElementById('theme-select');
+    const customThemeSettings = document.getElementById('custom-theme-settings');
+    const contentBgColorInput = document.getElementById('content-bg-color');
+    const navbarBgColorInput = document.getElementById('navbar-bg-color');
+    const tasksPage = document.getElementById('tasks-page');
+    const todayTaskListContainer = document.getElementById('today-task-list');
+    const upcomingTaskListContainer = document.getElementById('upcoming-task-list');
+    const todayEmptyMessage = document.getElementById('today-empty-message');
+    const upcomingEmptyMessage = document.getElementById('upcoming-empty-message');
+    const taskForm = document.getElementById('task-form');
+    const taskModalEl = document.getElementById('task-modal');
+    const taskModal = new bootstrap.Modal(taskModalEl);
+    const taskModalLabel = document.getElementById('task-modal-label');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const priorityFilter = document.getElementById('priority-filter');
+    const exportBtn = document.getElementById('export-data-btn');
+    const importBtn = document.getElementById('import-data-btn');
+    const importFileInput = document.getElementById('import-file-input');
+    const newSubtaskInput = document.getElementById('new-subtask-input');
+    const addSubtaskBtnModal = document.getElementById('add-subtask-btn-modal');
+    const subtaskListModalDiv = document.getElementById('subtask-list-modal');
+    const devModeToggle = document.getElementById('dev-mode-toggle');
+    const devSettingsPanel = document.getElementById('dev-settings-panel');
+    const launchLastSectionToggle = document.getElementById('launch-last-section-toggle');
+
+
     function showPage(pageId) {
         contentArea.classList.remove('no-scroll');
 
@@ -72,18 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const getTodayString = () => new Date().toISOString().slice(0, 10);
 
     // Theming Engine
-    const themeSelect = document.getElementById('theme-select');
-    const customThemeSettings = document.getElementById('custom-theme-settings');
-    const contentBgColorInput = document.getElementById('content-bg-color');
-    const navbarBgColorInput = document.getElementById('navbar-bg-color');
-    const contentArea = document.getElementById('content');
-    const navbar = document.getElementById('navbar');
-    const body = document.body;
 
     const THEME_CLASSES = {
         light: { body: 'bg-light text-dark', navbar: 'bg-light' },
         dark: { body: 'bg-dark text-white', navbar: 'bg-dark' },
-        primary: { body: 'bg-primary text-white', navbar: 'bg-primary' }
+        primary: { body: 'bg-primary text-white', navbar: 'bg-primary' },
+        success: { body: 'bg-success text-white', navbar: 'bg-success' }
     };
 
     /**
@@ -226,9 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
 
     // Data Management (Import/Export)
-    const exportBtn = document.getElementById('export-data-btn');
-    const importBtn = document.getElementById('import-data-btn');
-    const importFileInput = document.getElementById('import-file-input');
 
     exportBtn.addEventListener('click', () => {
         const dataToExport = {
@@ -288,11 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Task Management
-    const taskForm = document.getElementById('task-form');
-    const taskModalEl = document.getElementById('task-modal');
-    const taskModal = new bootstrap.Modal(taskModalEl);
-    const taskModalLabel = document.getElementById('task-modal-label');
-    const addTaskBtn = document.getElementById('add-task-btn');
 
     function getTasks() {
         let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -351,9 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Subtask management in Modal ---
-    const newSubtaskInput = document.getElementById('new-subtask-input');
-    const addSubtaskBtnModal = document.getElementById('add-subtask-btn-modal');
-    const subtaskListModalDiv = document.getElementById('subtask-list-modal');
     let subtasksForCurrentTask = [];
 
     function renderSubtasksInModal() {
@@ -404,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Task Filtering
     let taskFilterState = { priority: 'all' };
-    const priorityFilter = document.getElementById('priority-filter');
 
     if (priorityFilter) {
         priorityFilter.addEventListener('change', () => {
@@ -433,11 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Task Rendering
-    const tasksPage = document.getElementById('tasks-page');
-    const todayTaskListContainer = document.getElementById('today-task-list');
-    const upcomingTaskListContainer = document.getElementById('upcoming-task-list');
-    const todayEmptyMessage = document.getElementById('today-empty-message');
-    const upcomingEmptyMessage = document.getElementById('upcoming-empty-message');
 
 
     function renderSingleTaskList(tasks, container, emptyMessage, emptyMessageContainer) {
@@ -476,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td>
                     <div class="fw-bold">${taskInstance.title}${recurrenceHTML}</div>
-                    <small class="text-muted">Due: ${taskInstance.dueDate || 'N/A'}</small>
+                    <small>Due: ${taskInstance.dueDate || 'N/A'}</small>
                 </td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-secondary me-1 edit-btn" title="Edit Task"><i class="bi bi-pencil"></i></button>
@@ -869,9 +875,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Dev Mode UI Logic ---
-    const devModeToggle = document.getElementById('dev-mode-toggle');
-    const devSettingsPanel = document.getElementById('dev-settings-panel');
-    const launchLastSectionToggle = document.getElementById('launch-last-section-toggle');
 
     function applyDevSettingsUI() {
         const settings = getDevSettings();
