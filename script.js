@@ -465,42 +465,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function renderTasks() {
-        // --- Today's Tasks ---
         const todayStr = getTodayString();
-        let todayTasks = generateDisplayTasks(todayStr, todayStr);
-        if (taskFilterState.priority !== 'all') {
-            todayTasks = todayTasks.filter(task => task.priority === taskFilterState.priority);
-        }
-        todayTasks.sort((a, b) => a.sortOrder - b.sortOrder);
-        renderSingleTaskList(todayTasks, todayTaskListContainer, 'No tasks due today that match the current filter.', todayEmptyMessage);
 
-        // --- Upcoming Tasks (Next 7 Days) ---
-        const tomorrow = new Date(todayStr);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        // 1. Generate all possible instances for today + next 7 days
         const sevenDaysLater = new Date(todayStr);
         sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
-
-        const tomorrowStr = tomorrow.toISOString().slice(0, 10);
         const sevenDaysLaterStr = sevenDaysLater.toISOString().slice(0, 10);
 
-        const todayTaskIds = new Set(todayTasks.map(task => task.id));
-        let allUpcomingInstances = generateDisplayTasks(tomorrowStr, sevenDaysLaterStr);
+        let allInstances = generateDisplayTasks(todayStr, sevenDaysLaterStr);
 
+        // 2. Apply priority filter
         if (taskFilterState.priority !== 'all') {
-            allUpcomingInstances = allUpcomingInstances.filter(task => task.priority === taskFilterState.priority);
+            allInstances = allInstances.filter(task => task.priority === taskFilterState.priority);
         }
 
-        const uniqueUpcomingTasks = [];
-        const upcomingTaskIdsFound = new Set();
-        allUpcomingInstances.forEach(taskInstance => {
-            if (!todayTaskIds.has(taskInstance.id) && !upcomingTaskIdsFound.has(taskInstance.id)) {
-                uniqueUpcomingTasks.push(taskInstance);
-                upcomingTaskIdsFound.add(taskInstance.id);
+        // 3. De-duplicate to get only the single next occurrence for each task ID
+        const nextOccurrences = [];
+        const processedTaskIds = new Set();
+        // The list is already sorted by date from generateDisplayTasks
+        allInstances.forEach(instance => {
+            if (!processedTaskIds.has(instance.id)) {
+                nextOccurrences.push(instance);
+                processedTaskIds.add(instance.id);
             }
         });
 
-        uniqueUpcomingTasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.sortOrder - b.sortOrder);
-        renderSingleTaskList(uniqueUpcomingTasks, upcomingTaskListContainer, 'No upcoming tasks for the next 7 days.', upcomingEmptyMessage);
+        // 4. Separate into Today and Upcoming lists
+        const todayTasks = nextOccurrences.filter(task => task.dueDate === todayStr);
+        const upcomingTasks = nextOccurrences.filter(task => task.dueDate !== todayStr);
+
+        // 5. Sort and Render
+        todayTasks.sort((a, b) => a.sortOrder - b.sortOrder);
+        upcomingTasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.sortOrder - b.sortOrder);
+
+        renderSingleTaskList(todayTasks, todayTaskListContainer, 'No tasks due today that match the current filter.', todayEmptyMessage);
+        renderSingleTaskList(upcomingTasks, upcomingTaskListContainer, 'No upcoming tasks for the next 7 days.', upcomingEmptyMessage);
     }
 
 

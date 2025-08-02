@@ -80,7 +80,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0.5rem; /* A little padding so it's not flush with edges */
+    padding: 0; /* Make it flush with edges */
 }
 
 #calendar-container {
@@ -97,13 +97,17 @@ body {
     grid-auto-rows: minmax(0, 1fr); /* Create flexible rows */
     gap: 1px;
     background-color: var(--bs-border-color, #dee2e6);
-    border: 1px solid var(--bs-border-color, #dee2e6);
+    /* Keep only bottom border */
+    border-style: solid;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-width: 0 0 1px 0;
 }
 
 .calendar-day-header {
     font-weight: bold;
     text-align: center;
-    padding: 0.5rem 0;
+    padding: 0.2rem 0; /* Reduced padding */
+    font-size: 0.75em; /* Smaller font */
     background-color: var(--bs-light, #f8f9fa);
 }
 
