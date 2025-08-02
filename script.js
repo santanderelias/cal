@@ -339,6 +339,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let taskFilterState = { priority: 'all' };
     const priorityFilter = document.getElementById('priority-filter');
 
+    if (priorityFilter) {
+        priorityFilter.addEventListener('change', () => {
+            taskFilterState.priority = priorityFilter.value;
+            saveFilterState();
+            renderTasks();
+        });
+    }
+
     function saveFilterState() {
         localStorage.setItem('taskFilterState', JSON.stringify(taskFilterState));
     }
@@ -358,6 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Task Rendering
+    const tasksPage = document.getElementById('tasks-page');
     const todayTaskListContainer = document.getElementById('today-task-list');
     const upcomingTaskListContainer = document.getElementById('upcoming-task-list');
 
@@ -467,9 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    tasksPage.addEventListener('dragstart', e => {
-        if (e.target.classList.contains('card')) {
-            draggedTaskId = e.target.dataset.taskId;
+    if (tasksPage) {
+        tasksPage.addEventListener('dragstart', e => {
+            if (e.target.classList.contains('card')) {
+                draggedTaskId = e.target.dataset.taskId;
             // Timeout to allow the browser to create a drag image before applying the class
             setTimeout(() => e.target.classList.add('dragging'), 0);
         }
@@ -534,13 +544,14 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTasks(tasks);
         renderTasks(); // Re-render with new order
     });
+    }
 
 
     // Event delegation for task actions (now on the parent page)
-    const tasksPage = document.getElementById('tasks-page');
-    tasksPage.addEventListener('click', (e) => {
-        const card = e.target.closest('.card');
-        if (!card) return;
+    if (tasksPage) {
+        tasksPage.addEventListener('click', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
         const taskId = card.dataset.taskId;
         const instanceDate = card.dataset.instanceDate;
 
