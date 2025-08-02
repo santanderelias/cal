@@ -16,6 +16,12 @@ body {
     grid-area: content;
     overflow-y: auto;
     padding: 1rem;
+    background-color: var(--app-bg-color);
+}
+
+.content-area.no-scroll {
+    overflow-y: hidden;
+    padding: 0;
 }
 
 .navbar {
@@ -57,42 +63,90 @@ body {
     }
 }
 
-.task-complete {
-    opacity: 0.65;
+/* Task Table Styles */
+.table {
+    --bs-table-color: var(--app-text-color, initial);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--app-striped-bg-color, var(--bs-border-color));
+    --bs-table-striped-bg: var(--app-striped-bg-color, transparent);
+    --bs-table-striped-color: var(--app-text-color, initial);
+    --bs-table-hover-bg: var(--app-striped-bg-color, transparent);
+    --bs-table-hover-color: var(--app-text-color, initial);
 }
 
-.task-complete .card-title,
-.task-complete .card-text {
+.task-complete td {
+    opacity: 0.6;
+}
+
+.task-complete .fw-bold,
+.task-complete small {
     text-decoration: line-through;
+    color: #6c757d;
+}
+
+.priority-cell {
+    width: 45px;
+}
+
+.priority-cell .form-check-input {
+    cursor: pointer;
 }
 
 /* Calendar Styles */
+#calendar-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0.5rem; /* A little padding so it's not flush with edges */
+}
+
+#calendar-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Important for flex-grow in a scrollable parent */
+}
+
 .calendar-grid {
+    flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    border: 1px solid #dee2e6;
-    padding: 5px;
-    border-radius: .25rem;
+    grid-auto-rows: minmax(0, 1fr); /* Create flexible rows */
+    gap: 1px;
+    background-color: var(--bs-border-color, #dee2e6);
+    /* Keep only bottom border */
+    border-style: solid;
+    border-color: var(--bs-border-color, #dee2e6);
+    border-width: 0 0 1px 0;
 }
 
 .calendar-day-header {
     font-weight: bold;
     text-align: center;
-    padding: 0.5rem 0;
+    padding: 0.2rem 0; /* Reduced padding */
+    font-size: 0.75em; /* Smaller font */
+    background-color: var(--app-striped-bg-color, var(--bs-light));
+    color: var(--app-text-color, initial);
 }
 
 .calendar-day {
-    border: 1px solid #e9ecef;
-    padding: 8px;
-    min-height: 120px;
+    background-color: transparent;
+    padding: 4px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hide overflow for the day cell itself */
 }
 
 .day-number {
     font-size: 0.8em;
-    font-weight: bold;
-    color: #6c757d;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.day-badge-container {
+    flex-grow: 1;
+    overflow-y: auto; /* Allow this part to scroll if needed */
+    margin-top: 4px;
 }
 
 .calendar-day .badge {
@@ -101,6 +155,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 12px;
+    padding: 4px 6px;
+    cursor: pointer;
 }
 
 /* Drag and Drop Styles */

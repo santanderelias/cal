@@ -35,12 +35,26 @@
                 </div>
                 <div id="today-tasks-container">
                     <h4 class="mb-3">Today</h4>
-                    <div id="today-task-list"></div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <tbody id="today-task-list">
+                                <!-- Task rows will be injected by script.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="today-empty-message" class="text-center text-muted d-none"></p>
                 </div>
                 <hr class="my-4">
                 <div id="upcoming-tasks-container">
                     <h4 class="mb-3">Upcoming</h4>
-                    <div id="upcoming-task-list"></div>
+                     <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <tbody id="upcoming-task-list">
+                                <!-- Task rows will be injected by script.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="upcoming-empty-message" class="text-center text-muted d-none"></p>
                 </div>
             </div>
             <div id="calendar-page" class="page d-none p-0">
@@ -59,6 +73,7 @@
                             <option value="light">Light</option>
                             <option value="dark">Dark</option>
                             <option value="primary">Primary</option>
+                            <option value="success">Success</option>
                             <option value="custom">Custom</option>
                         </select>
                     </div>
