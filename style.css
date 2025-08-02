@@ -10,8 +10,13 @@
     --neumorph-shadow-blur: 16px;
 }
 
-body {
+html, body {
+    height: 100%;
     margin: 0;
+    overflow: hidden;
+}
+
+body {
     font-family: sans-serif;
     background-color: var(--app-bg-color);
     color: var(--app-text-color);
@@ -20,7 +25,7 @@ body {
 .app-container {
     display: flex;
     flex-direction: column-reverse;
-    height: 100vh;
+    height: 100%;
 }
 
 .content-area {
@@ -110,6 +115,12 @@ body {
 .table td, .table th {
     border: none;
     padding: 1rem;
+    white-space: nowrap;
+}
+
+.task-title-cell {
+    white-space: normal;
+    word-break: break-word;
 }
 .table td:first-child {
     border-top-left-radius: 12px;

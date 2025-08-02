@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="priority-cell" style="border-left: 5px solid ${priorityColor}; width: 45px;">
                     <input class="form-check-input complete-checkbox mx-auto" type="checkbox" ${isInstanceComplete ? 'checked' : ''} title="Mark as complete">
                 </td>
-                <td>
+                <td class="task-title-cell">
                     <div class="fw-bold">${taskInstance.title}${recurrenceHTML}</div>
                     <small>Due: ${taskInstance.dueDate || 'N/A'}</small>
                 </td>
