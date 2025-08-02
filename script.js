@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="priority-cell" style="border-left: 5px solid ${priorityColor}; width: 45px;">
                     <input class="form-check-input complete-checkbox mx-auto" type="checkbox" ${isInstanceComplete ? 'checked' : ''} title="Mark as complete">
                 </td>
-                <td>
+                <td class="task-title-cell">
                     <div class="fw-bold">${taskInstance.title}${recurrenceHTML}</div>
                     <small>Due: ${taskInstance.dueDate || 'N/A'}</small>
                 </td>
@@ -786,6 +786,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
 
+    document.getElementById('nav-prev-month-btn').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    document.getElementById('nav-next-month-btn').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar(currentYear, currentMonth);
+    });
+
     function renderCalendar(year, month) {
         const calendarContainer = document.getElementById('calendar-container');
         if (!calendarContainer) return;
@@ -856,24 +868,13 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.appendChild(daySquare);
         }
         calendarContainer.appendChild(grid);
-
-        document.getElementById('prev-month-btn').addEventListener('click', () => {
-            currentMonth--;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            renderCalendar(currentYear, currentMonth);
-        });
-
-        document.getElementById('next-month-btn').addEventListener('click', () => {
-            currentMonth++;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            renderCalendar(currentYear, currentMonth);
-        });
     }
 
     // Trigger calendar render when page is shown
     const originalShowPage = showPage;
     showPage = (pageId) => {
         originalShowPage(pageId);
+
         if (pageId === 'calendar-page') {
             currentYear = new Date().getFullYear();
             currentMonth = new Date().getMonth();
