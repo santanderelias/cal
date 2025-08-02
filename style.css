@@ -16,6 +16,7 @@ body {
     grid-area: content;
     overflow-y: auto;
     padding: 1rem;
+    background-color: var(--app-bg-color);
 }
 
 .navbar {
@@ -58,6 +59,16 @@ body {
 }
 
 /* Task Table Styles */
+.table {
+    --bs-table-color: var(--app-text-color, initial);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--app-striped-bg-color, var(--bs-border-color));
+    --bs-table-striped-bg: var(--app-striped-bg-color, transparent);
+    --bs-table-striped-color: var(--app-text-color, initial);
+    --bs-table-hover-bg: var(--app-striped-bg-color, transparent);
+    --bs-table-hover-color: var(--app-text-color, initial);
+}
+
 .task-complete td {
     opacity: 0.6;
 }
@@ -108,11 +119,12 @@ body {
     text-align: center;
     padding: 0.2rem 0; /* Reduced padding */
     font-size: 0.75em; /* Smaller font */
-    background-color: var(--bs-light, #f8f9fa);
+    background-color: var(--app-striped-bg-color, var(--bs-light));
+    color: var(--app-text-color, initial);
 }
 
 .calendar-day {
-    background-color: var(--bs-body-bg, #fff);
+    background-color: transparent;
     padding: 4px;
     position: relative;
     display: flex;

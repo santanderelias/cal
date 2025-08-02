@@ -101,11 +101,20 @@ document.addEventListener('DOMContentLoaded', () => {
             body.classList.remove(...themeClass.body.split(' '));
             navbar.classList.remove(themeClass.navbar);
         });
+
+        // Clear all custom styles and variables
+        const rootStyle = document.documentElement.style;
+        rootStyle.removeProperty('--app-bg-color');
+        rootStyle.removeProperty('--app-text-color');
+        rootStyle.removeProperty('--app-navbar-bg-color');
+        rootStyle.removeProperty('--app-navbar-text-color');
+        rootStyle.removeProperty('--app-striped-bg-color');
+
+        body.style.color = '';
+        navbar.style.color = '';
         contentArea.style.backgroundColor = '';
         navbar.style.backgroundColor = '';
-        body.style.backgroundColor = ''; // Also reset body background
-        body.style.color = ''; // and text color
-        navbar.style.color = ''; // and navbar text color
+
 
         // Reset explicit styles on nav controls that might have been set by custom theme
         const navControls = navbar.querySelectorAll('#calendar-nav-controls button, #calendar-nav-controls span');
@@ -136,20 +145,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const bodyTextColor = getContrastColor(contentBg);
         const navbarTextColor = getContrastColor(navbarBg);
 
-        // Apply to body/content
-        contentArea.style.backgroundColor = contentBg;
-        body.style.color = bodyTextColor;
+        // Set CSS variables on the root element
+        const rootStyle = document.documentElement.style;
+        rootStyle.setProperty('--app-bg-color', contentBg);
+        rootStyle.setProperty('--app-text-color', bodyTextColor);
+        rootStyle.setProperty('--app-navbar-bg-color', navbarBg);
+        rootStyle.setProperty('--app-navbar-text-color', navbarTextColor);
+        // Create a semi-transparent version of the text color for striped tables
+        const stripedColor = bodyTextColor === '#000000' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+        rootStyle.setProperty('--app-striped-bg-color', stripedColor);
 
-        // Apply to navbar
-        navbar.style.backgroundColor = navbarBg;
-        navbar.style.color = navbarTextColor;
+
+        // Apply the variables directly to the main elements
+        contentArea.style.backgroundColor = 'var(--app-bg-color)';
+        body.style.color = 'var(--app-text-color)';
+        navbar.style.backgroundColor = 'var(--app-navbar-bg-color)';
+        navbar.style.color = 'var(--app-navbar-text-color)';
 
         // Additionally, make sure navbar controls have the right color
         const navControls = navbar.querySelectorAll('#calendar-nav-controls button, #calendar-nav-controls span');
         navControls.forEach(control => {
-            control.style.color = navbarTextColor;
+            control.style.color = 'var(--app-navbar-text-color)';
             if (control.tagName === 'BUTTON') {
-                 control.style.borderColor = navbarTextColor;
+                 control.style.borderColor = 'var(--app-navbar-text-color)';
             }
         });
     }
