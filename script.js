@@ -80,6 +80,21 @@ document.addEventListener('DOMContentLoaded', () => {
         primary: { body: 'bg-primary text-white', navbar: 'bg-primary' }
     };
 
+    /**
+     * Determines whether to use black or white text based on the brightness of a background hex color.
+     * @param {string} hexColor - The background color in hex format (e.g., "#RRGGBB").
+     * @returns {string} - Returns '#000000' for light backgrounds and '#ffffff' for dark backgrounds.
+     */
+    function getContrastColor(hexColor) {
+        if (!hexColor || hexColor.length < 7) return '#000000'; // Default to black for invalid colors
+        const r = parseInt(hexColor.slice(1, 3), 16);
+        const g = parseInt(hexColor.slice(3, 5), 16);
+        const b = parseInt(hexColor.slice(5, 7), 16);
+        // Using the HSP color model to determine brightness
+        const luminance = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
+        return luminance > 127.5 ? '#000000' : '#ffffff';
+    }
+
     function applyTheme(theme) {
         // Remove all potential theme classes and reset styles
         Object.values(THEME_CLASSES).forEach(themeClass => {
@@ -90,6 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
         navbar.style.backgroundColor = '';
         body.style.backgroundColor = ''; // Also reset body background
         body.style.color = ''; // and text color
+        navbar.style.color = ''; // and navbar text color
+
+        // Reset explicit styles on nav controls that might have been set by custom theme
+        const navControls = navbar.querySelectorAll('#calendar-nav-controls button, #calendar-nav-controls span');
+        navControls.forEach(control => {
+            control.style.color = '';
+            if (control.tagName === 'BUTTON') {
+                 control.style.borderColor = '';
+            }
+        });
+
 
         if (theme === 'custom') {
             customThemeSettings.classList.remove('d-none');
@@ -107,8 +133,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyCustomColors(contentBg, navbarBg) {
+        const bodyTextColor = getContrastColor(contentBg);
+        const navbarTextColor = getContrastColor(navbarBg);
+
+        // Apply to body/content
         contentArea.style.backgroundColor = contentBg;
+        body.style.color = bodyTextColor;
+
+        // Apply to navbar
         navbar.style.backgroundColor = navbarBg;
+        navbar.style.color = navbarTextColor;
+
+        // Additionally, make sure navbar controls have the right color
+        const navControls = navbar.querySelectorAll('#calendar-nav-controls button, #calendar-nav-controls span');
+        navControls.forEach(control => {
+            control.style.color = navbarTextColor;
+            if (control.tagName === 'BUTTON') {
+                 control.style.borderColor = navbarTextColor;
+            }
+        });
     }
 
     function saveThemeSettings(settings) {
@@ -369,69 +412,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const tasksPage = document.getElementById('tasks-page');
     const todayTaskListContainer = document.getElementById('today-task-list');
     const upcomingTaskListContainer = document.getElementById('upcoming-task-list');
+    const todayEmptyMessage = document.getElementById('today-empty-message');
+    const upcomingEmptyMessage = document.getElementById('upcoming-empty-message');
 
-    function renderSingleTaskList(tasks, container, emptyMessage) {
-        container.innerHTML = '';
+
+    function renderSingleTaskList(tasks, container, emptyMessage, emptyMessageContainer) {
+        container.innerHTML = ''; // Clear previous content
+
+        const table = container.closest('table');
         if (tasks.length === 0) {
-            container.innerHTML = `<p class="text-center text-muted">${emptyMessage}</p>`;
+            emptyMessageContainer.textContent = emptyMessage;
+            emptyMessageContainer.classList.remove('d-none');
+            if (table) table.classList.add('d-none');
             return;
         }
 
+        if (table) table.classList.remove('d-none');
+        emptyMessageContainer.classList.add('d-none');
+
         tasks.forEach(taskInstance => {
-            const priorityColors = { low: 'success', medium: 'warning', high: 'danger' };
-            const priorityColor = priorityColors[taskInstance.priority] || 'secondary';
-            const tagsHTML = taskInstance.tags.map(tag => `<span class="badge bg-secondary me-1">${tag}</span>`).join('');
-
-            const taskCard = document.createElement('div');
+            const priorityColors = { low: '#28a745', medium: '#ffc107', high: '#dc3545' };
+            const priorityColor = priorityColors[taskInstance.priority] || '#6c757d';
             const isInstanceComplete = taskInstance.completedOn.includes(taskInstance.dueDate);
-            taskCard.className = `card mb-3 ${isInstanceComplete ? 'task-complete' : ''}`;
-            taskCard.dataset.taskId = taskInstance.id;
-            taskCard.dataset.instanceDate = taskInstance.dueDate;
-            taskCard.draggable = true;
 
-            const recurrenceHTML = taskInstance.recurrence !== 'none'
-                ? `<span class="badge bg-info me-2 text-capitalize">${taskInstance.recurrence}</span>`
+            const taskRow = document.createElement('tr');
+            taskRow.className = isInstanceComplete ? 'task-complete' : '';
+            taskRow.dataset.taskId = taskInstance.id;
+            taskRow.dataset.instanceDate = taskInstance.dueDate;
+            taskRow.draggable = true;
+
+            const recurrenceHTML = (taskInstance.recurrence && taskInstance.recurrence !== 'none')
+                ? `<span class="ms-2" title="Recurring Task"><i class="bi bi-arrow-repeat"></i></span>`
                 : '';
 
-            const subtasksHTML = (taskInstance.subtasks && taskInstance.subtasks.length > 0)
-                ? `
-                <div class="mt-3">
-                    <h6 class="mb-1">Subtasks:</h6>
-                    ${taskInstance.subtasks.map((subtask, index) => `
-                        <div class="form-check">
-                            <input class="form-check-input subtask-checkbox" type="checkbox" ${subtask.isComplete ? 'checked' : ''} id="subtask-${taskInstance.id}-${index}" data-subtask-index="${index}">
-                            <label class="form-check-label ${subtask.isComplete ? 'text-decoration-line-through text-muted' : ''}" for="subtask-${taskInstance.id}-${index}">
-                                ${subtask.text}
-                            </label>
-                        </div>
-                    `).join('')}
-                </div>
-                ` : '';
-
-            taskCard.innerHTML = `
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h5 class="card-title mb-1">${taskInstance.title}</h5>
-                        <div>
-                            ${recurrenceHTML}
-                            <span class="badge bg-${priorityColor} text-capitalize">${taskInstance.priority}</span>
-                        </div>
-                    </div>
-                    <p class="card-text text-muted mb-2"><small>Due: ${taskInstance.dueDate || 'N/A'}</small></p>
-                    <p class="card-text">${taskInstance.description || ''}</p>
-                    ${subtasksHTML}
-                    ${taskInstance.notes ? `<p class="card-text fst-italic border-start border-2 ps-2 mt-3"><strong>Notes:</strong> ${taskInstance.notes}</p>` : ''}
-                    <div class="mt-3">${tagsHTML}</div>
-                    <div class="d-flex justify-content-end mt-3">
-                        <button class="btn btn-sm btn-success complete-btn me-2" ${isInstanceComplete ? 'disabled' : ''}>Complete</button>
-                        <button class="btn btn-sm btn-outline-secondary me-2 edit-btn">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger delete-btn">Delete</button>
-                    </div>
-                </div>
+            // Using a more compact table layout
+            taskRow.innerHTML = `
+                <td class="priority-cell" style="border-left: 5px solid ${priorityColor}; width: 45px;">
+                    <input class="form-check-input complete-checkbox mx-auto" type="checkbox" ${isInstanceComplete ? 'checked' : ''} title="Mark as complete">
+                </td>
+                <td>
+                    <div class="fw-bold">${taskInstance.title}${recurrenceHTML}</div>
+                    <small class="text-muted">Due: ${taskInstance.dueDate || 'N/A'}</small>
+                </td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-secondary me-1 edit-btn" title="Edit Task"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" title="Delete Task"><i class="bi bi-trash"></i></button>
+                </td>
             `;
-            container.appendChild(taskCard);
+            container.appendChild(taskRow);
         });
     }
+
 
     function renderTasks() {
         // --- Today's Tasks ---
@@ -441,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
             todayTasks = todayTasks.filter(task => task.priority === taskFilterState.priority);
         }
         todayTasks.sort((a, b) => a.sortOrder - b.sortOrder);
-        renderSingleTaskList(todayTasks, todayTaskListContainer, 'No tasks due today that match the current filter.');
+        renderSingleTaskList(todayTasks, todayTaskListContainer, 'No tasks due today that match the current filter.', todayEmptyMessage);
 
         // --- Upcoming Tasks (Next 7 Days) ---
         const tomorrow = new Date(todayStr);
@@ -452,19 +483,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const tomorrowStr = tomorrow.toISOString().slice(0, 10);
         const sevenDaysLaterStr = sevenDaysLater.toISOString().slice(0, 10);
 
-        let upcomingTasks = generateDisplayTasks(tomorrowStr, sevenDaysLaterStr);
+        const todayTaskIds = new Set(todayTasks.map(task => task.id));
+        let allUpcomingInstances = generateDisplayTasks(tomorrowStr, sevenDaysLaterStr);
+
         if (taskFilterState.priority !== 'all') {
-            upcomingTasks = upcomingTasks.filter(task => task.priority === taskFilterState.priority);
+            allUpcomingInstances = allUpcomingInstances.filter(task => task.priority === taskFilterState.priority);
         }
-        upcomingTasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.sortOrder - b.sortOrder);
-        renderSingleTaskList(upcomingTasks, upcomingTaskListContainer, 'No upcoming tasks for the next 7 days.');
+
+        const uniqueUpcomingTasks = [];
+        const upcomingTaskIdsFound = new Set();
+        allUpcomingInstances.forEach(taskInstance => {
+            if (!todayTaskIds.has(taskInstance.id) && !upcomingTaskIdsFound.has(taskInstance.id)) {
+                uniqueUpcomingTasks.push(taskInstance);
+                upcomingTaskIdsFound.add(taskInstance.id);
+            }
+        });
+
+        uniqueUpcomingTasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.sortOrder - b.sortOrder);
+        renderSingleTaskList(uniqueUpcomingTasks, upcomingTaskListContainer, 'No upcoming tasks for the next 7 days.', upcomingEmptyMessage);
     }
 
-    // --- Drag and Drop Logic ---
-    let draggedTaskId = null;
+
+    // --- Drag and Drop Logic for Tables ---
+    let draggedElement = null;
 
     function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+        const draggableElements = [...container.querySelectorAll('tr:not(.dragging)')];
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
             const offset = y - box.top - box.height / 2;
@@ -476,138 +520,138 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    if (tasksPage) {
-        tasksPage.addEventListener('dragstart', e => {
-            if (e.target.classList.contains('card')) {
-                draggedTaskId = e.target.dataset.taskId;
-                // Timeout to allow the browser to create a drag image before applying the class
-                setTimeout(() => e.target.classList.add('dragging'), 0);
-             }
-        });
-    }
+    tasksPage.addEventListener('dragstart', e => {
+        if (e.target.tagName === 'TR') {
+            draggedElement = e.target;
+            setTimeout(() => {
+                if (draggedElement) draggedElement.classList.add('dragging');
+            }, 0);
+        }
+    });
 
     tasksPage.addEventListener('dragend', e => {
-        if (e.target.classList.contains('card')) {
-            e.target.classList.remove('dragging');
-            draggedTaskId = null;
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
         }
     });
 
     tasksPage.addEventListener('dragover', e => {
         e.preventDefault();
-        const container = e.target.closest('#today-task-list, #upcoming-task-list');
-        if (!container) return;
+        const container = e.target.closest('tbody');
+        if (!container || !draggedElement) return;
 
         const afterElement = getDragAfterElement(container, e.clientY);
-        const draggingElement = document.querySelector('.dragging');
-        if (draggingElement) {
-            if (afterElement == null) {
-                container.appendChild(draggingElement);
-            } else {
-                container.insertBefore(draggingElement, afterElement);
-            }
+        if (afterElement == null) {
+            container.appendChild(draggedElement);
+        } else {
+            container.insertBefore(draggedElement, afterElement);
         }
     });
 
     tasksPage.addEventListener('drop', e => {
         e.preventDefault();
-        if (!draggedTaskId) return;
+        if (!draggedElement) return;
 
-        const afterElement = getDragAfterElement(taskListContainer, e.clientY);
+        const droppedOnListId = draggedElement.parentElement.id;
+        if (droppedOnListId !== 'today-task-list') {
+            // For now, only allow reordering within the "Today" list
+            renderTasks(); // Re-render to snap back to original position
+            return;
+        }
+
+        const draggedTaskId = draggedElement.dataset.taskId;
+        const afterElement = getDragAfterElement(draggedElement.parentElement, e.clientY);
         let tasks = getTasks();
+
         const draggedTaskIndex = tasks.findIndex(t => t.id === draggedTaskId);
         if (draggedTaskIndex === -1) return;
 
         let newSortOrder;
-        if (afterElement === null) {
-            // Dropped at the very end
-            const maxSortOrder = Math.max(...tasks.map(t => t.sortOrder));
-            newSortOrder = maxSortOrder + 1000;
+        const reorderedIds = [...draggedElement.parentElement.children].map(row => row.dataset.taskId);
+        const currentTaskPos = reorderedIds.indexOf(draggedTaskId);
+
+        if (currentTaskPos === 0) {
+            // Dropped at the beginning
+            const nextTask = tasks.find(t => t.id === reorderedIds[1]);
+            newSortOrder = nextTask ? nextTask.sortOrder / 2 : Date.now();
+        } else if (currentTaskPos === reorderedIds.length - 1) {
+            // Dropped at the end
+            const prevTask = tasks.find(t => t.id === reorderedIds[currentTaskPos - 1]);
+            newSortOrder = prevTask.sortOrder + 1000;
         } else {
-            const afterElementId = afterElement.dataset.taskId;
-            const afterTask = tasks.find(t => t.id === afterElementId);
-
-            const afterTaskSortOrder = afterTask.sortOrder;
-            const sortedTasks = tasks.sort((a,b) => a.sortOrder - b.sortOrder);
-            const afterTaskPos = sortedTasks.findIndex(t => t.id === afterElementId);
-
-            if (afterTaskPos === 0) {
-                // Dropped at the beginning
-                newSortOrder = afterTaskSortOrder / 2;
-            } else {
-                // Dropped between two elements
-                const beforeTask = sortedTasks[afterTaskPos - 1];
-                newSortOrder = (beforeTask.sortOrder + afterTaskSortOrder) / 2;
-            }
+            // Dropped in the middle
+            const prevTask = tasks.find(t => t.id === reorderedIds[currentTaskPos - 1]);
+            const nextTask = tasks.find(t => t.id === reorderedIds[currentTaskPos + 1]);
+            newSortOrder = (prevTask.sortOrder + nextTask.sortOrder) / 2;
         }
 
         tasks[draggedTaskIndex].sortOrder = newSortOrder;
         saveTasks(tasks);
-        renderTasks(); // Re-render with new order
+        renderTasks(); // Re-render to reflect the confirmed new order
     });
-    
 
 
     // Event delegation for task actions (now on the parent page)
-    if (tasksPage) {
-        tasksPage.addEventListener('click', (e) => {
-            const card = e.target.closest('.card');
-            if (!card) return;
-        const taskId = card.dataset.taskId;
-        const instanceDate = card.dataset.instanceDate;
+    tasksPage.addEventListener('click', (e) => {
+        const taskRow = e.target.closest('tr');
+        if (!taskRow) return;
 
-        if (e.target.classList.contains('delete-btn')) {
+        const taskId = taskRow.dataset.taskId;
+        const instanceDate = taskRow.dataset.instanceDate;
+        let tasks = getTasks();
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        // Handle task deletion
+        if (e.target.closest('.delete-btn')) {
             if (confirm('Are you sure you want to permanently delete this task and all its future occurrences?')) {
-                let tasks = getTasks();
                 tasks = tasks.filter(t => t.id !== taskId);
                 saveTasks(tasks);
                 renderTasks();
-                // Also need to re-render calendar if visible
-                if (document.getElementById('calendar-page').classList.contains('d-none') === false) {
+                if (!document.getElementById('calendar-page').classList.contains('d-none')) {
                     renderCalendar(currentYear, currentMonth);
                 }
             }
-        } else if (e.target.classList.contains('edit-btn')) {
-            const tasks = getTasks();
-            const taskToEdit = tasks.find(t => t.id === taskId);
-            if (taskToEdit) {
-                document.getElementById('task-id').value = taskToEdit.id;
-                document.getElementById('task-title').value = taskToEdit.title;
-                document.getElementById('task-description').value = taskToEdit.description;
-                document.getElementById('task-priority').value = taskToEdit.priority;
-                document.getElementById('task-due-date').value = taskToEdit.dueDate;
-                document.getElementById('task-tags').value = taskToEdit.tags.join(', ');
-                document.getElementById('task-notes').value = taskToEdit.notes;
-                document.getElementById('task-recurrence').value = taskToEdit.recurrence || 'none';
-
-                subtasksForCurrentTask = taskToEdit.subtasks ? [...taskToEdit.subtasks] : [];
-                renderSubtasksInModal();
-
-                taskModalLabel.textContent = 'Edit Task';
-                taskModal.show();
-            }
-        } else if (e.target.classList.contains('complete-btn')) {
-            let tasks = getTasks();
-            const taskToComplete = tasks.find(t => t.id === taskId);
-            if (taskToComplete) {
-                if (!taskToComplete.completedOn.includes(instanceDate)) {
-                    taskToComplete.completedOn.push(instanceDate);
-                    saveTasks(tasks);
-                    renderTasks();
+        }
+        // Handle task editing
+        else if (e.target.closest('.edit-btn')) {
+            document.getElementById('task-id').value = task.id;
+            document.getElementById('task-title').value = task.title;
+            document.getElementById('task-description').value = task.description;
+            document.getElementById('task-priority').value = task.priority;
+            document.getElementById('task-due-date').value = task.dueDate;
+            document.getElementById('task-tags').value = task.tags.join(', ');
+            document.getElementById('task-notes').value = task.notes;
+            document.getElementById('task-recurrence').value = task.recurrence || 'none';
+            subtasksForCurrentTask = task.subtasks ? [...task.subtasks] : [];
+            renderSubtasksInModal();
+            taskModalLabel.textContent = 'Edit Task';
+            taskModal.show();
+        }
+        // Handle task completion via checkbox
+        else if (e.target.classList.contains('complete-checkbox')) {
+            const isComplete = e.target.checked;
+            if (isComplete) {
+                if (!task.completedOn.includes(instanceDate)) {
+                    task.completedOn.push(instanceDate);
                 }
+            } else {
+                task.completedOn = task.completedOn.filter(d => d !== instanceDate);
             }
-        } else if (e.target.classList.contains('subtask-checkbox')) {
+            saveTasks(tasks);
+            renderTasks();
+        }
+        // Handle subtask completion
+        else if (e.target.classList.contains('subtask-checkbox')) {
             const subtaskIndex = parseInt(e.target.dataset.subtaskIndex, 10);
-            let tasks = getTasks();
-            const parentTask = tasks.find(t => t.id === taskId);
-            if (parentTask && parentTask.subtasks[subtaskIndex]) {
-                parentTask.subtasks[subtaskIndex].isComplete = e.target.checked;
+            if (task && task.subtasks[subtaskIndex]) {
+                task.subtasks[subtaskIndex].isComplete = e.target.checked;
                 saveTasks(tasks);
                 renderTasks();
             }
         }
-                })
-    };
+    });
 
     // Initial render call
     loadFilterState();
@@ -759,6 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (tasksForDay.length > 0) {
                 const tasksList = document.createElement('div');
+                tasksList.className = 'day-badge-container'; // For scrolling
                 tasksForDay.forEach(task => {
                     const isComplete = task.completedOn.includes(dayString);
                     if(isComplete) return; // Don't show completed tasks on calendar
