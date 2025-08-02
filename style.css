@@ -1,163 +1,171 @@
+:root {
+    --app-bg-color: #e0e5ec;
+    --app-text-color: #343a40;
+    --app-navbar-bg-color: #e0e5ec;
+    --app-navbar-text-color: #343a40;
+    --app-striped-bg-color: rgba(0, 0, 0, 0.02);
+    --neumorph-shadow-light: rgba(255, 255, 255, 0.7);
+    --neumorph-shadow-dark: rgba(0, 0, 0, 0.15);
+    --neumorph-shadow-distance: 6px;
+    --neumorph-shadow-blur: 16px;
+}
+
 body {
     margin: 0;
     font-family: sans-serif;
+    background-color: var(--app-bg-color);
+    color: var(--app-text-color);
 }
 
 .app-container {
-    display: grid;
+    display: flex;
+    flex-direction: column-reverse;
     height: 100vh;
-    grid-template-rows: 1fr auto;
-    grid-template-areas:
-        "content"
-        "navbar";
 }
 
 .content-area {
-    grid-area: content;
+    flex-grow: 1;
     overflow-y: auto;
-    padding: 1rem;
-    background-color: var(--app-bg-color);
+    padding: 1.5rem;
+    min-height: 0;
 }
 
 .content-area.no-scroll {
-    overflow-y: hidden;
+    overflow: hidden;
     padding: 0;
 }
 
+/* --- Neumorphism Base Styles --- */
+.neumorph-outset {
+    background-color: var(--app-bg-color);
+    border-radius: 12px;
+    box-shadow:
+        var(--neumorph-shadow-distance) var(--neumorph-shadow-distance) var(--neumorph-shadow-blur) var(--neumorph-shadow-dark),
+        calc(-1 * var(--neumorph-shadow-distance)) calc(-1 * var(--neumorph-shadow-distance)) var(--neumorph-shadow-blur) var(--neumorph-shadow-light);
+}
+
+.neumorph-inset {
+    background-color: var(--app-bg-color);
+    border-radius: 12px;
+    box-shadow:
+        inset var(--neumorph-shadow-distance) var(--neumorph-shadow-distance) var(--neumorph-shadow-blur) var(--neumorph-shadow-dark),
+        inset calc(-1 * var(--neumorph-shadow-distance)) calc(-1 * var(--neumorph-shadow-distance)) var(--neumorph-shadow-blur) var(--neumorph-shadow-light);
+}
+
+/* --- Component Redesign --- */
+
 .navbar {
-    grid-area: navbar;
+    flex-shrink: 0;
     display: flex;
-    justify-content: space-between; /* Changed for new controls */
+    justify-content: space-around;
     align-items: center;
     padding: 0.5rem;
-    background-color: #f8f9fa;
+    background-color: var(--app-navbar-bg-color);
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
 }
 
-.nav-link .nav-text {
-    display: none;
+.nav-link {
+    color: var(--app-navbar-text-color);
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+.nav-link:hover, .nav-link.active {
+    opacity: 1;
 }
 
-/* Desktop layout */
-@media (min-width: 768px) {
-    .app-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-        grid-template-areas:
-            "navbar"
-            "content";
-    }
-
-    .navbar {
-        justify-content: space-between; /* Keep space-between for desktop */
-    }
-    #main-nav-links {
-        justify-content: flex-start !important;
-    }
-
-    .nav-link {
-        padding: 0.5rem 1rem;
-    }
-
-    .nav-link .nav-text {
-        display: inline;
-    }
+.btn {
+    border: none;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease-in-out;
+}
+.btn:active {
+    transform: translateY(1px);
+    box-shadow:
+        inset 3px 3px 7px var(--neumorph-shadow-dark),
+        inset -3px -3px 7px var(--neumorph-shadow-light) !important;
 }
 
-/* Task Table Styles */
+#add-task-btn, .modal-footer .btn-primary {
+    color: var(--app-text-color);
+}
+
+.form-control, .form-select {
+    border: none;
+    padding: 0.75rem 1.25rem;
+}
+
 .table {
-    --bs-table-color: var(--app-text-color, initial);
     --bs-table-bg: transparent;
-    --bs-table-border-color: var(--app-striped-bg-color, var(--bs-border-color));
-    --bs-table-striped-bg: var(--app-striped-bg-color, transparent);
-    --bs-table-striped-color: var(--app-text-color, initial);
-    --bs-table-hover-bg: var(--app-striped-bg-color, transparent);
-    --bs-table-hover-color: var(--app-text-color, initial);
+    --bs-table-striped-bg: var(--app-striped-bg-color);
+    --bs-table-color: var(--app-text-color);
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+.table tr {
+    transition: transform 0.2s ease-in-out;
+}
+.table tr:hover {
+    transform: scale(1.01);
+}
+.table td, .table th {
+    border: none;
+    padding: 1rem;
+}
+.table td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.table td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
-.task-complete td {
-    opacity: 0.6;
+.modal-content {
+    border: none;
 }
 
-.task-complete .fw-bold,
-.task-complete small {
-    text-decoration: line-through;
-    color: #6c757d;
-}
-
-.priority-cell {
-    width: 45px;
-}
-
-.priority-cell .form-check-input {
-    cursor: pointer;
-}
-
-/* Calendar Styles */
+/* Calendar Redesign */
 #calendar-page {
     display: flex;
     flex-direction: column;
     height: 100%;
+    padding: 1rem;
 }
-
 #calendar-container {
     flex-grow: 1;
     display: flex;
-    flex-direction: column;
 }
-
 .calendar-grid {
-    flex-grow: 1;
+    width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background-color: var(--bs-border-color, #dee2e6);
-    border-style: solid;
-    border-color: var(--bs-border-color, #dee2e6);
-    border-width: 0 0 1px 0;
+    gap: 0.75rem;
 }
-
 .calendar-day-header {
-    font-weight: bold;
     text-align: center;
-    padding: 0.2rem 0;
-    font-size: 0.75em;
-    background-color: var(--app-striped-bg-color, rgba(0,0,0,0.03));
-    color: var(--app-text-color, initial);
+    font-weight: 600;
+    opacity: 0.6;
 }
-
 .calendar-day {
-    background-color: var(--app-bg-color, var(--bs-body-bg));
-    padding: 4px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    padding: 8px;
     overflow: hidden;
 }
-
-.day-number {
-    font-size: 0.8em;
-    color: var(--bs-secondary-color, #6c757d);
-}
-
 .day-badge-container {
-    flex-grow: 1;
-    overflow-y: auto; /* Allow this part to scroll if needed */
+    overflow-y: auto;
     margin-top: 4px;
 }
 
-.calendar-day .badge {
-    display: block;
-    margin-bottom: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 12px;
-    padding: 4px 6px;
-    cursor: pointer;
-}
-
-/* Drag and Drop Styles */
-.card.dragging {
-    opacity: 0.5;
-    border: 2px dashed #0d6efd;
+/* --- Media Queries --- */
+@media (min-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .navbar {
+        justify-content: space-between;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .nav-link .nav-text {
+        display: inline;
+    }
 }
