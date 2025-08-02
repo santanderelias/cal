@@ -1,0 +1,110 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.app-container {
+    display: grid;
+    height: 100vh;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        "content"
+        "navbar";
+}
+
+.content-area {
+    grid-area: content;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.navbar {
+    grid-area: navbar;
+    display: flex;
+    justify-content: space-between; /* Changed for new controls */
+    align-items: center;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.nav-link .nav-text {
+    display: none;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "navbar"
+            "content";
+    }
+
+    .navbar {
+        justify-content: space-between; /* Keep space-between for desktop */
+    }
+    #main-nav-links {
+        justify-content: flex-start !important;
+    }
+
+    .nav-link {
+        padding: 0.5rem 1rem;
+    }
+
+    .nav-link .nav-text {
+        display: inline;
+    }
+}
+
+.task-complete {
+    opacity: 0.65;
+}
+
+.task-complete .card-title,
+.task-complete .card-text {
+    text-decoration: line-through;
+}
+
+/* Calendar Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    border: 1px solid #dee2e6;
+    padding: 5px;
+    border-radius: .25rem;
+}
+
+.calendar-day-header {
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.calendar-day {
+    border: 1px solid #e9ecef;
+    padding: 8px;
+    min-height: 120px;
+    position: relative;
+}
+
+.day-number {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.calendar-day .badge {
+    display: block;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Drag and Drop Styles */
+.card.dragging {
+    opacity: 0.5;
+    border: 2px dashed #0d6efd;
+}
