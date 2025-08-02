@@ -480,10 +480,11 @@ document.addEventListener('DOMContentLoaded', () => {
         tasksPage.addEventListener('dragstart', e => {
             if (e.target.classList.contains('card')) {
                 draggedTaskId = e.target.dataset.taskId;
-            // Timeout to allow the browser to create a drag image before applying the class
-            setTimeout(() => e.target.classList.add('dragging'), 0);
-        }
-    });
+                // Timeout to allow the browser to create a drag image before applying the class
+                setTimeout(() => e.target.classList.add('dragging'), 0);
+             }
+        });
+    }
 
     tasksPage.addEventListener('dragend', e => {
         if (e.target.classList.contains('card')) {
@@ -544,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTasks(tasks);
         renderTasks(); // Re-render with new order
     });
-    }
+    
 
 
     // Event delegation for task actions (now on the parent page)
@@ -552,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tasksPage.addEventListener('click', (e) => {
             const card = e.target.closest('.card');
             if (!card) return;
+        })
         const taskId = card.dataset.taskId;
         const instanceDate = card.dataset.instanceDate;
 
@@ -605,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderTasks();
             }
         }
-    });
+    };
 
     // Initial render call
     loadFilterState();
