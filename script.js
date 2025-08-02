@@ -874,10 +874,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalShowPage = showPage;
     showPage = (pageId) => {
         originalShowPage(pageId);
+        const calendarContainer = document.getElementById('calendar-container');
+
         if (pageId === 'calendar-page') {
+            const navbarHeight = navbar.offsetHeight;
+            const contentPadding = parseFloat(getComputedStyle(contentArea).paddingTop) + parseFloat(getComputedStyle(contentArea).paddingBottom);
+            calendarContainer.style.height = `calc(100vh - ${navbarHeight + contentPadding}px)`;
+
             currentYear = new Date().getFullYear();
             currentMonth = new Date().getMonth();
             renderCalendar(currentYear, currentMonth);
+        } else {
+            calendarContainer.style.height = '';
         }
     };
 
