@@ -5,11 +5,11 @@
     --app-navbar-text-color: #343a40;
     --app-striped-bg-color: rgba(0, 0, 0, 0.02);
 
-    --neumorph-radius: 12px;
+    --neumorph-radius: 50px;
     --neumorph-shadow-light: rgba(255, 255, 255, 0.7);
     --neumorph-shadow-dark: rgba(0, 0, 0, 0.1);
-    --neumorph-shadow-outset: 5px 5px 10px var(--neumorph-shadow-dark), -5px -5px 10px var(--neumorph-shadow-light);
-    --neumorph-shadow-inset: inset 5px 5px 10px var(--neumorph-shadow-dark), inset -5px -5px 10px var(--neumorph-shadow-light);
+    --neumorph-shadow-outset: 20px 20px 60px var(--neumorph-shadow-dark), -20px -20px 60px var(--neumorph-shadow-light);
+    --neumorph-shadow-inset: inset 20px 20px 60px var(--neumorph-shadow-dark), inset -20px -20px 60px var(--neumorph-shadow-light);
 }
 
 html, body {
