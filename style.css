@@ -93,18 +93,24 @@ body {
 }
 
 /* Calendar Styles */
+#calendar-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 #calendar-container {
-    /* Height will be set by JS */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .calendar-grid {
-    height: 100%;
+    flex-grow: 1;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-auto-rows: minmax(0, 1fr); /* Create flexible rows */
     gap: 1px;
     background-color: var(--bs-border-color, #dee2e6);
-    /* Keep only bottom border */
     border-style: solid;
     border-color: var(--bs-border-color, #dee2e6);
     border-width: 0 0 1px 0;
@@ -113,19 +119,19 @@ body {
 .calendar-day-header {
     font-weight: bold;
     text-align: center;
-    padding: 0.2rem 0; /* Reduced padding */
-    font-size: 0.75em; /* Smaller font */
-    background-color: var(--app-striped-bg-color, var(--bs-light));
+    padding: 0.2rem 0;
+    font-size: 0.75em;
+    background-color: var(--app-striped-bg-color, rgba(0,0,0,0.03));
     color: var(--app-text-color, initial);
 }
 
 .calendar-day {
-    background-color: transparent;
+    background-color: var(--app-bg-color, var(--bs-body-bg));
     padding: 4px;
     position: relative;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Hide overflow for the day cell itself */
+    overflow: hidden;
 }
 
 .day-number {

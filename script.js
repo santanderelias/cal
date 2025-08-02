@@ -786,6 +786,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
 
+    document.getElementById('nav-prev-month-btn').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    document.getElementById('nav-next-month-btn').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar(currentYear, currentMonth);
+    });
+
     function renderCalendar(year, month) {
         const calendarContainer = document.getElementById('calendar-container');
         if (!calendarContainer) return;
@@ -856,36 +868,17 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.appendChild(daySquare);
         }
         calendarContainer.appendChild(grid);
-
-        document.getElementById('prev-month-btn').addEventListener('click', () => {
-            currentMonth--;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            renderCalendar(currentYear, currentMonth);
-        });
-
-        document.getElementById('next-month-btn').addEventListener('click', () => {
-            currentMonth++;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            renderCalendar(currentYear, currentMonth);
-        });
     }
 
     // Trigger calendar render when page is shown
     const originalShowPage = showPage;
     showPage = (pageId) => {
         originalShowPage(pageId);
-        const calendarContainer = document.getElementById('calendar-container');
 
         if (pageId === 'calendar-page') {
-            const navbarHeight = navbar.offsetHeight;
-            const contentPadding = parseFloat(getComputedStyle(contentArea).paddingTop) + parseFloat(getComputedStyle(contentArea).paddingBottom);
-            calendarContainer.style.height = `calc(100vh - ${navbarHeight + contentPadding}px)`;
-
             currentYear = new Date().getFullYear();
             currentMonth = new Date().getMonth();
             renderCalendar(currentYear, currentMonth);
-        } else {
-            calendarContainer.style.height = '';
         }
     };
 
